@@ -20,8 +20,8 @@
         <form class="form-inline" action=<%= redirectURL %> method="POST">
         <div class="form-group mb-2">
             <label for="longURL">Long URL:</label>
-            <input class="form-control" type="text" name="longURL" placeholder=<%=longURL%> style="width: 300px; margin: 1em" required minlength="4">
-            <button type="submit" class="btn btn-primary">Update</button>
+            <input class="form-control" type="text" name="longURL" value=<%=longURL%> style="width: 300px; margin: 1em" required minlength="3">
+            <button type="submit" class="btn btn-success">Update</button>
         </div>
         </form>
 
