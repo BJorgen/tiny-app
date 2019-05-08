@@ -9,9 +9,16 @@
         <Title>TinyApp</Title>
     </head>
     <body style="font-size:20px; padding:50px;">
-        <H2>List of URLs:</H2>
+        <head>
+                <% include ./partials/_header %>
+        </head>
+
+        <h4>My URLs</h4>
+        <ul>
         <%for (let shortURL in urls) {%>
-                <p><b>Short URL:</b> <%=shortURL%> -> <b>Long URL:</b> <%=urls[shortURL]%></p>
+                <li><b><%= shortURL %>:</b> <%= urls[shortURL] %></li>
         <%}%>
+        </ul>
+
     </body>
 </html>

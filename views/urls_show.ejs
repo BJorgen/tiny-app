@@ -9,8 +9,10 @@
         <Title>TinyApp - Show URLS</Title>
     </head>
     <body style="font-size:20px; padding:50px;">
-        <H2>URL Lookup Results:</H2>
-        <p><b>Short URL:</b> <%=shortURL%></p>
-        <p><b>Long URL:</b> <%=longURL%></p>
+        <head>
+            <% include ./partials/_header %>
+        </head>
+        <h4>TinyURL for <%= longURL %></h4>
+        <p><%= shortURL %></p>
     </body>
 </html>
