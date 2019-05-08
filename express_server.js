@@ -69,6 +69,10 @@ app.post('/urls/:shortURL/delete', (req, res) => {
     res.redirect('/urls')
 });
 
+app.post('/login', (req, res) => {
+    res.send('<h1>Login Pressed</h1>')
+});
+
 app.get("/u/:shortURL", (req, res) => {
     const longURL = urlDatabase[req.params.shortURL];
     res.redirect(longURL);
