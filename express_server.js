@@ -47,11 +47,15 @@ function generateRandomString() {
 }
 
 app.post('/urls', (req, res) => {
-    console.log(req.body);
-    res.send(`
-    Long URL: ${req.body.longURL}
-    Short URL: ${generateRandomString()}
+    shortURL = generateRandomString();
+    urlDatabase[shortURL] = req.body.longURL
+    console.log(`
+    Long URL: ${urlDatabase[shortURL]}
+    Short URL: ${shortURL}
+    urlDatabase:
     `);
+    console.log(urlDatabase)
+    res.redirect('/urls/'+ shortURL);
 });
 
 
