@@ -15,8 +15,14 @@
 
         <h4>My URLs</h4>
         <ul>
-        <%for (let shortURL in urls) {%>
-                <li><b><%= shortURL %>:</b> <%= urls[shortURL] %></li>
+        <%for (let shortURL in urls) {
+            let redirectURL = "/urls/"+shortURL+"/delete"%>
+                <li>
+                    <form method="POST" action= <%=redirectURL%> >
+                        <b><%= shortURL %>:</b> <%= urls[shortURL] %>
+                        <button type="submit" class="btn btn-warning">Delete</button>
+                    </form>
+                </li>
         <%}%>
         </ul>
 
