@@ -4,15 +4,28 @@
         <a href="/urls/new">Create New TinyURL</a>
     </div>
 
-    <form class="form-inline" action="/login" method="POST">
-    <div class="form-group mb-2">
-        <label for="longURL">Login:</label>
-        <input class="form-control" type="text" name="username" placeholder="user-name" style="width: 300px; margin: 1em" required minlength="1">
-        <button type="submit" class="btn btn-primary">Login</button>
-    </div>
-    </form>
+    <% if(username){ %>
 
-    <p>Currently logged in: <%=username%> </p>
+        <form class="form-inline" action="/logout" method="POST">
+        <div class="form-group mb-2">
+            <label for="logout-button"><%=username%></label>
+            <button type="submit" name="logout-button" class="btn btn-danger">Logout</button>
+        </div>
+        </form>
+
+
+    <% } else{ %>
+
+        <form class="form-inline" action="/login" method="POST">
+        <div class="form-group mb-2">
+            <label for="longURL">Login:</label>
+            <input class="form-control" type="text" name="username" placeholder="user-name" style="width: 300px; margin: 1em" required minlength="1">
+            <button type="submit" class="btn btn-primary">Login</button>
+        </div>
+        </form>
+
+    <% } %>
+
 
 </head>
 
