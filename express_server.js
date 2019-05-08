@@ -49,15 +49,13 @@ function generateRandomString() {
 app.post('/urls', (req, res) => {
     shortURL = generateRandomString();
     urlDatabase[shortURL] = req.body.longURL
-    console.log(`
-    Long URL: ${urlDatabase[shortURL]}
-    Short URL: ${shortURL}
-    urlDatabase:
-    `);
-    console.log(urlDatabase)
     res.redirect('/urls/'+ shortURL);
 });
 
+app.get("/u/:shortURL", (req, res) => {
+    const longURL = urlDatabase[req.params.shortURL];
+    res.redirect(longURL);
+});
 
 app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`);
