@@ -15,18 +15,18 @@
 
         <h3>My URLs</h3>
         <p></p>
-        <%for (let shortURL in urls) {
-            let redirectURL = "/urls/"+shortURL+"/delete"%>
-
-                <%const editLink = "/urls/" + shortURL%>
+        <%for (let shortURL in urls) {%>
+            <%const redirectURL = "/urls/"+shortURL+"/delete"%>
+            <%const editLink = "/urls/" + shortURL%>
                 
-                <form method="POST" action= <%=redirectURL%> >
-                <div class="form-group mb-2">
-                    <b><%= shortURL %>:</b> <%= urls[shortURL] %>
-                    <a href=<%=editLink%>>edit</a>
-                    <button type="submit" class="btn btn-warning">Delete</button>
-                </div>
-                </form>
+            <form method="POST" action=<%=redirectURL%> >
+            <div class="form-group mb-2">
+                <b><%= shortURL %>:</b> <%= urls[shortURL] %>
+                <a href=<%=editLink%>>edit</a>
+                <button type="submit" class="btn btn-warning">Delete</button>
+            </div>
+            </form>
+
         <%}%>
 
     </body>
