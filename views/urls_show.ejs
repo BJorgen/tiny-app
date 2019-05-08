@@ -6,12 +6,11 @@
         
         <! ---- Link to Bootstrap CSS ---->
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-        <Title>TinyApp</Title>
+        <Title>TinyApp - Show URLS</Title>
     </head>
     <body style="font-size:20px; padding:50px;">
-        <H2>List of URLs:</H2>
-        <%for (let shortURL in urls) {%>
-                <p><b>Short URL:</b> <%=shortURL%> -> <b>Long URL:</b> <%=urls[shortURL]%></p>
-        <%}%>
+        <H2>URL Lookup Results:</H2>
+        <p><b>Short URL:</b> <%=shortURL%></p>
+        <p><b>Long URL:</b> <%=longURL%></p>
     </body>
 </html>
