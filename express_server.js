@@ -61,15 +61,23 @@ function idLookup(user_id){
     }
 }
 
-// --- GET REQUESTS w RENDER---
+//=======================================================
+//                  GET REQUESTS
+//=======================================================
+
+// --- GET REQUESTS - URL Creation, Summary and Edits ---
 
 app.get('/urls', (req, res) => {
     let user = idLookup(req.cookies["user_id"]);
-    let templateVars = {
-        user : user,
-        urls : urlDatabase
-    };
-    res.render('urls_index', templateVars);
+    if (user) {
+        let templateVars = {
+            user : user,
+            urls : urlDatabase
+        };
+        res.render('urls_index', templateVars);
+    } else {
+        res.redirect('/login')
+    }
 });
 
 
@@ -79,23 +87,6 @@ app.get('/urls/new', (req, res) => {
         user : user
     };
     res.render('urls_new', templateVars)
-});
-
-app.get('/register', (req, res) => {
-    res.clearCookie('user_id')
-    let templateVars = {
-        user : null
-    };
-    res.render('user_register',templateVars);
-});
-
-
-app.get('/login', (req, res) => {
-    res.clearCookie('user_id')
-    let templateVars = {
-        user : null
-    };
-    res.render('user_login',templateVars);
 });
 
 app.get('/urls/:shortURL', (req, res) => {
@@ -109,7 +100,7 @@ app.get('/urls/:shortURL', (req, res) => {
 });
 
 
-// --- GET REQUESTS w REDIRECT---
+// --- GET REQUESTS - Link to long URL ---
 
 app.get("/u/:shortURL", (req, res) => {
     const longURL = urlDatabase[req.params.shortURL];
@@ -117,7 +108,30 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 
-// --- POST REQUESTS ---
+// --- GET REQUESTS - User Login and Registration ---
+
+app.get('/register', (req, res) => {
+    res.clearCookie('user_id')
+    let templateVars = {
+        user : null
+    };
+    res.render('user_register',templateVars);
+});
+
+app.get('/login', (req, res) => {
+    res.clearCookie('user_id')
+    let templateVars = {
+        user : null
+    };
+    res.render('user_login',templateVars);
+});
+
+
+//=======================================================
+//                  POST REQUESTS
+//=======================================================
+
+// --- POST REQUESTS - URL Creation, Summary and Edits/Delete ---
 
 app.post('/urls', (req, res) => {
     shortURL = generateRandomString();
@@ -130,33 +144,13 @@ app.post('/urls/:shortURL', (req, res) => {
     res.redirect('/urls')
 });
 
-
 app.post('/urls/:shortURL/delete', (req, res) => {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls')
 });
 
 
-app.post('/login', (req, res) => {
-    let user = emailLookup(req.body.email);
-    if (user && user.password === req.body.password) {
-        res.cookie('user_id', user.id)
-        res.redirect('/urls');
-    } else if (user){
-        console.log("User Password is Wrong.");
-        res.status(404).send('Incorrect Password');
-    } else {
-        console.log("User Email not found in Database.");
-        res.status(404).send('Incorrect Login Email');
-    }
-});
-
-
-app.post('/logout', (req, res) => {
-    res.clearCookie('user_id');
-    res.redirect('/urls');
-});
-
+// --- POST REQUESTS - User Login and Registration ---
 
 app.post('/register', (req, res) => {
     let user = emailLookup(req.body.email);
@@ -176,6 +170,28 @@ app.post('/register', (req, res) => {
     }
 });
 
+app.post('/login', (req, res) => {
+    let user = emailLookup(req.body.email);
+    if (user && user.password === req.body.password) {
+        res.cookie('user_id', user.id)
+        res.redirect('/urls');
+    } else if (user){
+        console.log("User Password is Wrong.");
+        res.status(404).send('Incorrect Password');
+    } else {
+        console.log("User Email not found in Database.");
+        res.status(404).send('Incorrect Login Email');
+    }
+});
+
+app.post('/logout', (req, res) => {
+    res.clearCookie('user_id');
+    res.redirect('/urls');
+});
+
+
+
+//=======================================================
 
 app.listen(PORT, () => {
     console.log(`Tiny App listening on port ${PORT}`);
