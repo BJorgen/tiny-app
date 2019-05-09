@@ -4,11 +4,11 @@
         <a href="/urls/new">Create New TinyURL</a>
     </div>
 
-    <% if(username){ %>
-
+    <% if(user){ %>
+        <!-- Show logged in user & logout button-->
         <form class="form-inline" action="/logout" method="POST">
         <div class="form-group mb-2">
-            <label for="logout-button"><%=username%></label>
+            <label for="logout-button"><%=user.email%></label>
             <button type="submit" name="logout-button" class="btn btn-danger">Logout</button>
         </div>
         </form>
@@ -16,13 +16,14 @@
 
     <% } else{ %>
 
-        <form class="form-inline" action="/login" method="POST">
+        <!-- Show loggin input (email) & login button -->
+        <form class="form-inline" action="/login_link" method="POST">
         <div class="form-group mb-2">
-            <label for="longURL">Login:</label>
-            <input class="form-control" type="text" name="username" placeholder="username" style="width: 300px; margin: 1em" required minlength="1">
             <button type="submit" class="btn btn-primary">Login</button>
         </div>
         </form>
+
+        <a href='/register'> Register for an Account</a>
 
     <% } %>
 

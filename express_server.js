@@ -47,43 +47,80 @@ function generateRandomString() {
 
 function emailLookup(email){
     for (let user in users) {
-        if (users[user].email === email) {
+        console.log('From emailLookup: ', email, user, users[user].email )
+        if (email === users[user].email) {
             return users[user];
         }
     }
 }
 
+function idLookup(user_id){
+    for (let user in users) {
+        if (users[user].id === user_id) {
+            return users[user];
+        }
+    }
+}
+
+// --- GET REQUESTS w RENDER---
 
 app.get('/urls', (req, res) => {
+    let user = idLookup(req.cookies["user_id"]);
     let templateVars = {
-        username: req.cookies["username"],
-        urls: urlDatabase
+        user : user,
+        urls : urlDatabase
     };
     res.render('urls_index', templateVars);
 });
 
+
 app.get('/urls/new', (req, res) => {
+    let user = idLookup(req.cookies["user_id"]);
     let templateVars = {
-        username: req.cookies["username"]
+        username : req.cookies["username"],
+        user : user
     };
     res.render('urls_new', templateVars)
 });
 
-app.get('/urls/register', (req, res) => {
-    res.clearCookie('username');
-    let templateVars = {username : false};
+app.get('/register', (req, res) => {
+    res.clearCookie('user_id')
+    let templateVars = {
+        user : null
+    };
     res.render('user_register',templateVars);
 });
 
 
+app.get('/login', (req, res) => {
+    res.clearCookie('user_id')
+    let templateVars = {
+        user : null
+    };
+    res.render('user_login',templateVars);
+});
+
 app.get('/urls/:shortURL', (req, res) => {
+    let user = idLookup(req.cookies["user_id"]);
     let templateVars = {
         username: req.cookies["username"],
+        user : user,
         shortURL: req.params.shortURL, 
         longURL: urlDatabase[req.params.shortURL]
     };
     res.render('urls_show', templateVars);
 });
+
+
+// --- GET REQUESTS w REDIRECT---
+
+app.get("/u/:shortURL", (req, res) => {
+    const longURL = urlDatabase[req.params.shortURL];
+    res.redirect(longURL);
+});
+
+
+// --- POST REQUESTS ---
 
 app.post('/urls', (req, res) => {
     shortURL = generateRandomString();
@@ -96,32 +133,51 @@ app.post('/urls/:shortURL', (req, res) => {
     res.redirect('/urls')
 });
 
+
 app.post('/urls/:shortURL/delete', (req, res) => {
     delete urlDatabase[req.params.shortURL];
     res.redirect('/urls')
 });
 
+
 app.post('/login', (req, res) => {
-    res.cookie('username', req.body.username);
-    res.redirect('/urls');
+
+    let user = emailLookup(req.body.email);
+    if (user) {
+        let user_id = user.id;
+        res.cookie('user_id', user_id)
+        res.redirect('/urls');
+    } else {
+        console.log("User is not Registered Yet.");
+        res.redirect('/urls/register')
+    }
+});
+
+
+app.post('/login_link', (req, res) => {
+    res.redirect('/login')
 });
 
 app.post('/logout', (req, res) => {
     res.clearCookie('username');
+    res.clearCookie('user_id')
     res.redirect('/urls');
 });
 
 
 app.post('/register', (req, res) => {
-    if (emailLookup(req.body.email) === undefined && req.body.email && req.body.password) {
-        res.cookie('username', req.body.email);
+    let user = emailLookup(req.body.email);
+    console.log(user)
+    if ( user === undefined && req.body.email && req.body.password) {
         let newId = generateRandomString();
         users[newId] = {
             id: newId, 
             email: req.body.email,
             password: req.body.password
         }
-        console.log(users);
+        user = users[newId];
+        res.cookie('user_id', user.id);
+        console.log(user);
         res.redirect('/urls');
     } else {
         console.log("User Already Exists or empty email or password.");
@@ -130,10 +186,7 @@ app.post('/register', (req, res) => {
 });
 
 
-app.get("/u/:shortURL", (req, res) => {
-    const longURL = urlDatabase[req.params.shortURL];
-    res.redirect(longURL);
-});
+
 
 
 

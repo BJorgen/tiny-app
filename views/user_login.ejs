@@ -13,9 +13,9 @@
 
         <% include partials/_header %>
 
-        <h3>User Registration</h3>
+        <h3>User Login</h3>
 
-        <form class="form-inline" action="/register" method="POST">
+        <form class="form-inline" action="/login" method="POST">
         <div class="form-group mb-2">
             <label for="email">Email:</label>
             <input class="form-control" type="text" name="email" placeholder="Email" style="width: 300px; margin: 1em" required minlength="3">
@@ -23,20 +23,9 @@
         <div class="form-group mb-2">
             <label for="passord">Password:</label>
             <input class="form-control" type="password" name="password" placeholder="Password" style="width: 300px; margin: 1em" required minlength="3">
-            <button type="submit" name="logout-button" class="btn btn-primary">Register</button>
+            <button type="submit" name="logout-button" class="btn btn-primary">Login</button>
         </div>
         </form>
 
     </body>
 </html>
-
-
-
-
-
-<!
-Create a new template that includes a form with an email address and password field. 
-The email field should use type=email and have name=email. 
-The password field should use type=password and have name=password. The form should POST to /register.
-In express_server.js Create a GET /register endpoint, which returns the template you just created.
->
