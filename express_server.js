@@ -46,10 +46,9 @@ function generateRandomString() {
 }
 
 function emailLookup(email){
-    for (let user in users) {
-        console.log('From emailLookup: ', email, user, users[user].email )
-        if (email === users[user].email) {
-            return users[user];
+    for (let userKey in users) {
+        if (email === users[userKey].email) {
+            return users[userKey];
         }
     }
 }
@@ -77,7 +76,6 @@ app.get('/urls', (req, res) => {
 app.get('/urls/new', (req, res) => {
     let user = idLookup(req.cookies["user_id"]);
     let templateVars = {
-        username : req.cookies["username"],
         user : user
     };
     res.render('urls_new', templateVars)
@@ -103,7 +101,6 @@ app.get('/login', (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
     let user = idLookup(req.cookies["user_id"]);
     let templateVars = {
-        username: req.cookies["username"],
         user : user,
         shortURL: req.params.shortURL, 
         longURL: urlDatabase[req.params.shortURL]
@@ -141,28 +138,28 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 
 app.post('/login', (req, res) => {
-
     let user = emailLookup(req.body.email);
-    if (user) {
-        let user_id = user.id;
-        res.cookie('user_id', user_id)
+    if (user && user.passord === req.body.password) {
+        res.cookie('user_id', user.id)
         res.redirect('/urls');
+    } else if (user){
+        console.log("User Password is Wrong.");
+        res.status(404).send('Incorrect Password');
     } else {
-        console.log("User is not Registered Yet.");
-        res.redirect('/register')
+        console.log("User Email not found in Database.");
+        res.status(404).send('Incorrect Login Email');
     }
 });
 
+
 app.post('/logout', (req, res) => {
-    res.clearCookie('username');
-    res.clearCookie('user_id')
+    res.clearCookie('user_id');
     res.redirect('/urls');
 });
 
 
 app.post('/register', (req, res) => {
     let user = emailLookup(req.body.email);
-    console.log(user)
     if ( user === undefined && req.body.email && req.body.password) {
         let newId = generateRandomString();
         users[newId] = {
@@ -172,19 +169,14 @@ app.post('/register', (req, res) => {
         }
         user = users[newId];
         res.cookie('user_id', user.id);
-        console.log(user);
         res.redirect('/urls');
     } else {
         console.log("User Already Exists or empty email or password.");
-        res.status(400).send('Bad Request');
+        res.status(400).send('Bad Request - Email used already has associated account');
     }
 });
 
 
-
-
-
-
 app.listen(PORT, () => {
-    console.log(`Example app listening on port ${PORT}`);
+    console.log(`Tiny App listening on port ${PORT}`);
 });
