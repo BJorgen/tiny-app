@@ -17,6 +17,19 @@ const urlDatabase = {
     "9sm5xK": "http://www.google.com"
 };
 
+const users = { 
+    "userRandomID": {
+        id: "userRandomID", 
+        email: "user@example.com", 
+        password: "purple-monkey-dinosaur"
+    },
+   "user2RandomID": {
+        id: "user2RandomID", 
+        email: "user2@example.com", 
+        password: "dishwasher-funk"
+    }
+  }
+
 
 app.get('/', (req, res) => {
     res.send("Hello!")
@@ -59,10 +72,7 @@ app.get('/urls/new', (req, res) => {
 
 app.get('/urls/register', (req, res) => {
     res.clearCookie('username');
-
-    let templateVars = {
-        username : false
-    };
+    let templateVars = {username : false};
     res.render('user_register',templateVars);
 });
 
@@ -105,8 +115,14 @@ app.post('/logout', (req, res) => {
 
 app.post('/register', (req, res) => {
     res.cookie('username', req.body.email);
-    //res.cookie('password', req.body.password);
-    res.redirect('/urls', );
+    let newId = generateRandomString();
+    users[newId] = {
+        id: newId, 
+        email: req.body.email,
+        password: req.body.password
+    }
+    console.log(users);
+    res.redirect('/urls');
 });
 
 
