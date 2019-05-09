@@ -139,7 +139,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 
 app.post('/login', (req, res) => {
     let user = emailLookup(req.body.email);
-    if (user && user.passord === req.body.password) {
+    if (user && user.password === req.body.password) {
         res.cookie('user_id', user.id)
         res.redirect('/urls');
     } else if (user){
