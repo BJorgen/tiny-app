@@ -149,13 +149,8 @@ app.post('/login', (req, res) => {
         res.redirect('/urls');
     } else {
         console.log("User is not Registered Yet.");
-        res.redirect('/urls/register')
+        res.redirect('/register')
     }
-});
-
-
-app.post('/login_link', (req, res) => {
-    res.redirect('/login')
 });
 
 app.post('/logout', (req, res) => {
