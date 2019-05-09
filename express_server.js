@@ -53,6 +53,13 @@ function generateRandomString() {
     return randomString;
 }
 
+function emailLookup(email){
+    for (let user in users) {
+        if (users[user].email === email) {
+            return users[user];
+        }
+    }
+}
 
 
 app.get('/urls', (req, res) => {
@@ -114,15 +121,20 @@ app.post('/logout', (req, res) => {
 
 
 app.post('/register', (req, res) => {
-    res.cookie('username', req.body.email);
-    let newId = generateRandomString();
-    users[newId] = {
-        id: newId, 
-        email: req.body.email,
-        password: req.body.password
+    if (emailLookup(req.body.email) === undefined && req.body.email && req.body.password) {
+        res.cookie('username', req.body.email);
+        let newId = generateRandomString();
+        users[newId] = {
+            id: newId, 
+            email: req.body.email,
+            password: req.body.password
+        }
+        console.log(users);
+        res.redirect('/urls');
+    } else {
+        console.log("User Already Exists or empty email or password.");
+        res.status(400).send('Bad Request');
     }
-    console.log(users);
-    res.redirect('/urls');
 });
 
 
