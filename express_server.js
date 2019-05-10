@@ -8,11 +8,11 @@
 //=======================================================
 //                 SERVER SETUP
 //=======================================================
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 
 const bcrypt = require('bcrypt');
 const saltRounds = 12;
@@ -22,8 +22,13 @@ const PORT = 8080;
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(morgan('dev'))
+app.use(morgan('dev'));
 app.use(cookieParser());
+app.use(cookieSession({
+    name: 'session',
+    keys: ["happy"],
+    // maxAge: 10 * 60 * 1000 // 10 min
+  }));
 
 
 //=======================================================
@@ -134,7 +139,7 @@ app.get('/users.json', (req, res) => {
 // --- GET REQUESTS - URL Creation, Summary and Edits ---
 
 app.get('/urls', (req, res) => {
-    let user = idLookup(req.cookies["user_id"]);
+    let user = idLookup(req.session.user_id);
     let userUrls;
     if (user) {
         userUrls = urlsForUser(user.id);
@@ -148,7 +153,7 @@ app.get('/urls', (req, res) => {
 
 
 app.get('/urls/new', (req, res) => {
-    let user = idLookup(req.cookies["user_id"]);
+    let user = idLookup(req.session.user_id);
     if (user) {
         let templateVars = {
             user : user
@@ -160,7 +165,7 @@ app.get('/urls/new', (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-    let user = idLookup(req.cookies["user_id"]);
+    let user = idLookup(req.session.user_id);
     let shortURL = req.params.shortURL;
     if (user) {
         const userUrls = urlsForUser(user.id);
@@ -197,7 +202,7 @@ app.get("/u/:shortURL", (req, res) => {
 // --- GET REQUESTS - User Login and Registration ---
 
 app.get('/register', (req, res) => {
-    res.clearCookie('user_id')
+    req.session = null;
     let templateVars = {
         user : null
     };
@@ -205,7 +210,7 @@ app.get('/register', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-    res.clearCookie('user_id')
+    req.session = null;
     let templateVars = {
         user : null
     };
@@ -220,7 +225,7 @@ app.get('/login', (req, res) => {
 // --- POST REQUESTS - URL Creation, Summary and Edits/Delete ---
 
 app.post('/urls', (req, res) => {
-    let user = idLookup(req.cookies["user_id"]);
+    let user = idLookup(req.session.user_id);
     if(user) {
         shortURL = generateRandomString();
         let longURL = httpCheck(req.body.longURL)
@@ -233,7 +238,7 @@ app.post('/urls', (req, res) => {
 
 
 app.post('/urls/:shortURL', (req, res) => {
-    let user = idLookup(req.cookies["user_id"]);   
+    let user = idLookup(req.session.user_id);   
     if (user) {
         let shortURL = req.params.shortURL;
         let longURL = httpCheck(req.body.longURL);
@@ -246,7 +251,7 @@ app.post('/urls/:shortURL', (req, res) => {
 
 
 app.post('/urls/:shortURL/delete', (req, res) => {
-    let user = idLookup(req.cookies["user_id"]);
+    let user = idLookup(req.session.user_id);
     if (user) {
         let shortURL = req.params.shortURL;
         delete urlDatabase[shortURL];
@@ -272,7 +277,7 @@ app.post('/register', (req, res) => {
         }
 
         user = users[newId];
-        res.cookie('user_id', user.id);
+        req.session.user_id = user.id;
         res.redirect('/urls');
 
     } else {
@@ -287,7 +292,7 @@ app.post('/login', (req, res) => {
     let user = emailLookup(req.body.email);
 
     if (user && bcrypt.compareSync(req.body.password, user.password)) {
-        res.cookie('user_id', user.id)
+        req.session.user_id = user.id;
         res.redirect('/urls');
     } else if (user){
         console.log("User Password is Wrong.");
@@ -301,7 +306,7 @@ app.post('/login', (req, res) => {
 
 
 app.post('/logout', (req, res) => {
-    res.clearCookie('user_id');
+    req.session = null;
     res.redirect('/urls');
 });
 
