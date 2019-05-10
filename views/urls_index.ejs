@@ -15,7 +15,10 @@
 
         <h3>My URLs</h3>
         <p></p>
+
+        <!-- Loop through user urls and display them with edit and delete options -->
         <%for (let shortURL in urls) {%>
+
             <%const redirectURL = "/urls/"+shortURL+"/delete"%>
             <%const editLink = "/urls/" + shortURL%>
                 
@@ -28,6 +31,7 @@
             </form>
 
         <%}%>
+
 
     </body>
 </html>

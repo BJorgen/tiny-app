@@ -1,12 +1,13 @@
 <head>
     <div>
-        <h1>Tiny App</h1>
+        <h1>TinyApp</h1>
     </div>
 
     <% if(user){ %>
 
         
-        <!-- Show logged in user & logout button-->
+        <!-- If user is logged in, show logged in user & logout button-->
+        <!-- Also, for logged in users, have link to urls sumamry and create new url page -->
         <div>
             <a href='/urls'> URLs</a> |
             <a href="/urls/new">Create New TinyURL</a>
@@ -24,9 +25,9 @@
 
     <% } else{ %>
 
-        <!-- Show login link and registration links -->
+        <!-- If user is not logged in, show login link and registration links -->
         <div>
-            <a href='/Login'> Login </a> |
+            <a href='/login'> Login </a> |
             <a href='/register'> Register</a>
         </div>
 
