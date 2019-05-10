@@ -15,7 +15,7 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser')
 
 const bcrypt = require('bcrypt');
-const saltRounds = 15;
+const saltRounds = 12;
 
 const app = express();
 const PORT = 8080;
