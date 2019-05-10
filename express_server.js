@@ -15,7 +15,7 @@ const morgan = require('morgan');
 const cookieParser = require('cookie-parser')
 
 const bcrypt = require('bcrypt');
-const saltRounds = 12;
+const saltRounds = 15;
 
 const app = express();
 const PORT = 8080;
@@ -25,13 +25,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('dev'))
 app.use(cookieParser());
 
-// const myPlaintextPassword = 's0/\/\P4$$w0rD';
-// const someOtherPlaintextPassword = 'not_bacon';
-
-
-// bcrypt.compare(myPlaintextPassword, hash, function(err, res) {
-//     // res == true
-// });
 
 //=======================================================
 //                  DATABASES
@@ -65,8 +58,6 @@ const users = {
         password: "123"
     }
   }
-
-
 
 
 //=======================================================
@@ -274,31 +265,15 @@ app.post('/register', (req, res) => {
     if ( !user && email && req.body.password) {
         let newId = generateRandomString();
 
-        bcrypt
-            .hash(req.body.password, saltRounds)
-            .then(hash => {
-                console.log(`Hash: ${hash}`);
-                hashPassword = hash;
-                users[newId] = {
-                    id: newId, 
-                    email: email,
-                    password: hash
-                }
-                user = users[newId];
-                res.cookie('user_id', user.id);
-                res.redirect('/urls');
-            })
-            .catch(err => console.error(err.message));
+        users[newId] = {
+            id: newId, 
+            email: email,
+            password: bcrypt.hashSync(req.body.password, saltRounds)
+        }
 
-        // users[newId] = {
-        //     id: newId, 
-        //     email: email,
-        //     password: hashPassword
-        // }
-
-        // user = users[newId];
-        // res.cookie('user_id', user.id);
-        // res.redirect('/urls');
+        user = users[newId];
+        res.cookie('user_id', user.id);
+        res.redirect('/urls');
 
     } else {
         console.log("User Already Exists or empty email or password.");
@@ -307,18 +282,11 @@ app.post('/register', (req, res) => {
 });
 
 
+
 app.post('/login', (req, res) => {
     let user = emailLookup(req.body.email);
-    let passwordCheck = false;
-    bcrypt
-        .compare(req.body.password, user.password)
-        .then(res => {
-            console.log(res);
-            passwordCheck = res;
-        })
-        .catch(err => console.error(err.message));
 
-    if (user && passwordCheck) {
+    if (user && bcrypt.compareSync(req.body.password, user.password)) {
         res.cookie('user_id', user.id)
         res.redirect('/urls');
     } else if (user){
@@ -329,6 +297,8 @@ app.post('/login', (req, res) => {
         res.status(404).send('Incorrect Login Email');
     }
 });
+
+
 
 app.post('/logout', (req, res) => {
     res.clearCookie('user_id');
