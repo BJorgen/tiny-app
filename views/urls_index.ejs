@@ -13,24 +13,36 @@
 
         <% include partials/_header %>
 
-        <h3>My URLs</h3>
-        <p></p>
+        <% if(user){ %>
 
-        <!-- Loop through user urls and display them with edit and delete options -->
-        <%for (let shortURL in urls) {%>
+            <h3>My URLs</h3>
+            <p></p>
+            <!-- Loop through user urls and display them with edit and delete options -->
+            <%for (let shortURL in urls) {%>
 
-            <%const redirectURL = "/urls/"+shortURL+"/delete"%>
-            <%const editLink = "/urls/" + shortURL%>
-                
-            <form method="POST" action=<%=redirectURL%> >
-            <div class="form-group mb-2">
-                <b><%= shortURL %>:</b> <%= urls[shortURL] %>
-                <a href=<%=editLink%>>edit</a>
-                <button type="submit" class="btn btn-warning">Delete</button>
-            </div>
-            </form>
+                <%const redirectURL = "/urls/"+shortURL+"/delete"%>
+                <%const editLink = "/urls/" + shortURL%>
+                    
+                <form method="POST" action=<%=redirectURL%> >
+                <div class="form-group mb-2">
+                    <b><%= shortURL %>:</b> <%= urls[shortURL] %>
+                    <a href=<%=editLink%>>edit</a>
+                    <button type="submit" class="btn btn-warning">Delete</button>
+                </div>
+                </form>
 
-        <%}%>
+            <% } %>
+
+        <% } else { %>
+
+        <!-- If user is not logged in, provide a prompt for them to log in -->
+        <div>
+            <h4> You are not logged in yet. </h4>
+            <p> Please <a href='/login'> login </a> or  <a href='/register'> register</a> for an account.</p>
+        </div>
+
+    <% } %>
+
 
 
     </body>

@@ -1,3 +1,14 @@
+//=======================================================
+// Project:         TINYAPP
+//
+// Author:          Britta Jorgenson
+// Submitted:       May 10, 2019
+// Organization:    Lighthouse Labs
+//
+//=======================================================
+//                 SERVER SETUP
+//=======================================================
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
@@ -11,6 +22,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('dev'))
 app.use(cookieParser());
 
+//=======================================================
+//                  DATABASES
+//=======================================================
 
 const urlDatabase = {
     b6UTxQ: { longURL: "https://www.tsn.ca", userID: "user2RandomID" },
@@ -21,11 +35,6 @@ const urlDatabase = {
     Msc5xy: { longURL: "https://www.bbc.com", userID: "abc" }
 
 };
-
-// const urlDatabase = {
-//     "b2xVn2": "http://www.lighthouselabs.ca",
-//     "9sm5xK": "http://www.google.com"
-// };
 
 
 const users = { 
@@ -47,10 +56,11 @@ const users = {
   }
 
 
-app.get('/urls.json', (req, res) => {
-    res.json(urlDatabase);
-});
 
+
+//=======================================================
+//                  FUNCTIONS
+//=======================================================
 
 function generateRandomString() {
     let randomString = '';
@@ -61,6 +71,7 @@ function generateRandomString() {
     return randomString;
 }
 
+// --- Function to return user object { id: id, email: email, password: password} from email ---
 function emailLookup(email){
     for (let userKey in users) {
         if (email === users[userKey].email) {
@@ -69,6 +80,7 @@ function emailLookup(email){
     }
 }
 
+// --- Function to return user object { id: id, email: email, password: password} from user_id ---
 function idLookup(user_id){
     for (let user in users) {
         if (users[user].id === user_id) {
@@ -77,6 +89,8 @@ function idLookup(user_id){
     }
 }
 
+
+// --- Function to return user specific urls object from user_id ---
 function urlsForUser(user_id) {
     let urls = {};
     for(let shortURL in urlDatabase) {
@@ -87,24 +101,34 @@ function urlsForUser(user_id) {
     return urls;
 }
 
+// --- Check for https:// or http:// prefix on website and append if it does not have it ---
+//  NEEDS TO BE IMPLEMENTED STILL
+function httpCheck(longURL) {
+    return longURL;
+}
+
 //=======================================================
 //                  GET REQUESTS
 //=======================================================
+
+app.get('/urls.json', (req, res) => {
+    res.json(urlDatabase);
+});
+
 
 // --- GET REQUESTS - URL Creation, Summary and Edits ---
 
 app.get('/urls', (req, res) => {
     let user = idLookup(req.cookies["user_id"]);
+    let userUrls;
     if (user) {
-        const userUrls = urlsForUser(user.id);
-        let templateVars = {
-            user : user,
-            urls : userUrls
-        };
-        res.render('urls_index', templateVars);
-    } else {
-        res.redirect('/login');
+        userUrls = urlsForUser(user.id);
     }
+    let templateVars = {
+        user : user,
+        urls : userUrls
+    };
+    res.render('urls_index', templateVars);
 });
 
 
@@ -142,10 +166,16 @@ app.get('/urls/:shortURL', (req, res) => {
 
 
 // --- GET REQUESTS - Link to long URL ---
-// --- NOTE: No Security required for this feature! ---
+//      1 - No Security/Login required for this feature
+//      2 - If the shortURL is not in the database, redirect /urls
 app.get("/u/:shortURL", (req, res) => {
-    const longURL = urlDatabase[req.params.shortURL].longURL;
-    res.redirect(longURL);
+    let shortURL = req.params.shortURL;
+    if (urlDatabase[shortURL]) {
+        let redirectURL = urlDatabase[shortURL].longURL;
+        res.redirect(redirectURL);
+    } else {
+        res.redirect('/urls');
+    }
 });
 
 
@@ -175,22 +205,40 @@ app.get('/login', (req, res) => {
 // --- POST REQUESTS - URL Creation, Summary and Edits/Delete ---
 
 app.post('/urls', (req, res) => {
-    let user = idLookup(req.cookies["user_id"]);    
-    shortURL = generateRandomString();
-    urlDatabase[shortURL] = { longURL : req.body.longURL, userID: user.id },
-    res.redirect('/urls/'+ shortURL);
+    let user = idLookup(req.cookies["user_id"]);
+    if(user) {
+        shortURL = generateRandomString();
+        let longURL = httpCheck(req.body.longURL)
+        urlDatabase[shortURL] = { longURL : longURL, userID: user.id },
+        res.redirect('/urls/'+ shortURL); 
+    } else {
+        res.status(400).redirect('/login');
+    }
 });
+
 
 app.post('/urls/:shortURL', (req, res) => {
-    let shortURL = req.params.shortURL;
-    urlDatabase[shortURL].longURL = req.body.longURL;
-    res.redirect('/urls')
+    let user = idLookup(req.cookies["user_id"]);   
+    if (user) {
+        let shortURL = req.params.shortURL;
+        let longURL = httpCheck(req.body.longURL);
+        urlDatabase[shortURL].longURL = longURL;
+        res.redirect('/urls')
+    }else {
+        res.status(400).redirect('/login');
+    }
 });
 
+
 app.post('/urls/:shortURL/delete', (req, res) => {
-    let shortURL = req.params.shortURL;
-    delete urlDatabase[shortURL];
-    res.redirect('/urls')
+    let user = idLookup(req.cookies["user_id"]);
+    if (user) {
+        let shortURL = req.params.shortURL;
+        delete urlDatabase[shortURL];
+        res.redirect('/urls')
+    } else {
+        res.status(400).redirect('/login');
+    }
 });
 
 
@@ -214,6 +262,7 @@ app.post('/register', (req, res) => {
     }
 });
 
+
 app.post('/login', (req, res) => {
     let user = emailLookup(req.body.email);
     if (user && user.password === req.body.password) {
@@ -233,10 +282,15 @@ app.post('/logout', (req, res) => {
     res.redirect('/urls');
 });
 
-
-
 //=======================================================
 
 app.listen(PORT, () => {
     console.log(`Tiny App listening on port ${PORT}`);
 });
+
+
+//=======================================================
+//=======================================================
+//                      END
+//=======================================================
+//=======================================================
