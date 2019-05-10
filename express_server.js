@@ -26,8 +26,8 @@ app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(cookieSession({
     name: 'session',
-    keys: ["happy"],
-    // maxAge: 10 * 60 * 1000 // 10 min
+    keys: ["happy-times-at-lighthouse-labs"]
+    //maxAge: 10 * 60 * 1000 // 10 min
   }));
 
 
@@ -112,7 +112,7 @@ function urlsForUser(user_id) {
 //      IMPROVEMENT ALERT -> Need to find industry solution for this type of check
 function httpCheck(longURL) {
     //HTTPs:/
-    let webPrefix = ['http://', 'https:/']
+    const webPrefix = ['http://', 'https:/']
     let subString = longURL.substring(0, 7).toLowerCase();
     if (webPrefix.includes(subString)) {
         return longURL;
@@ -224,6 +224,7 @@ app.get('/login', (req, res) => {
 
 // --- POST REQUESTS - URL Creation, Summary and Edits/Delete ---
 
+
 app.post('/urls', (req, res) => {
     let user = idLookup(req.session.user_id);
     if(user) {
@@ -282,7 +283,7 @@ app.post('/register', (req, res) => {
 
     } else {
         console.log("User Already Exists or empty email or password.");
-        res.status(400).send('Bad Request - Email used already has associated account');
+        res.status(400).send('Bad Request - Email already has associated account. <a href="/urls">Return to TinyApp</a>');
     }
 });
 
@@ -295,11 +296,9 @@ app.post('/login', (req, res) => {
         req.session.user_id = user.id;
         res.redirect('/urls');
     } else if (user){
-        console.log("User Password is Wrong.");
-        res.status(404).send('Incorrect Password');
+        res.status(404).send('Incorrect Password! <a href="/urls">Return to TinyApp</a>');
     } else {
-        console.log("User Email not found in Database.");
-        res.status(404).send('Incorrect Login Email');
+        res.status(404).send('Login does not exist for this email! <a href="/urls">Return to TinyApp</a>');
     }
 });
 
