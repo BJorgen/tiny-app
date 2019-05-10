@@ -101,10 +101,18 @@ function urlsForUser(user_id) {
     return urls;
 }
 
-// --- Check for https:// or http:// prefix on website and append if it does not have it ---
-//  NEEDS TO BE IMPLEMENTED STILL
+// --- Check first 7 characters of longURL for https:/ or http:// prefix, append if it does not have it ---
+//      IMPROVEMENT ALERT -> Need to find industry solution for this type of check
 function httpCheck(longURL) {
-    return longURL;
+    //HTTPs:/
+    let webPrefix = ['http://', 'https:/']
+    let subString = longURL.substring(0, 7).toLowerCase();
+    if (webPrefix.includes(subString)) {
+        return longURL;
+    } else {
+        return webPrefix[0] + longURL;
+    }
+    
 }
 
 //=======================================================
