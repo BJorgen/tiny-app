@@ -14,6 +14,9 @@ const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser')
 
+const bcrypt = require('bcrypt');
+const saltRounds = 12;
+
 const app = express();
 const PORT = 8080;
 
@@ -21,6 +24,14 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('dev'))
 app.use(cookieParser());
+
+// const myPlaintextPassword = 's0/\/\P4$$w0rD';
+// const someOtherPlaintextPassword = 'not_bacon';
+
+
+// bcrypt.compare(myPlaintextPassword, hash, function(err, res) {
+//     // res == true
+// });
 
 //=======================================================
 //                  DATABASES
@@ -122,6 +133,11 @@ function httpCheck(longURL) {
 app.get('/urls.json', (req, res) => {
     res.json(urlDatabase);
 });
+
+app.get('/users.json', (req, res) => {
+    res.json(users);
+});
+
 
 
 // --- GET REQUESTS - URL Creation, Summary and Edits ---
@@ -253,17 +269,37 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 // --- POST REQUESTS - User Login and Registration ---
 
 app.post('/register', (req, res) => {
-    let user = emailLookup(req.body.email);
-    if ( user === undefined && req.body.email && req.body.password) {
+    let email = req.body.email;
+    let user = emailLookup(email);
+    if ( !user && email && req.body.password) {
         let newId = generateRandomString();
-        users[newId] = {
-            id: newId, 
-            email: req.body.email,
-            password: req.body.password
-        }
-        user = users[newId];
-        res.cookie('user_id', user.id);
-        res.redirect('/urls');
+
+        bcrypt
+            .hash(req.body.password, saltRounds)
+            .then(hash => {
+                console.log(`Hash: ${hash}`);
+                hashPassword = hash;
+                users[newId] = {
+                    id: newId, 
+                    email: email,
+                    password: hash
+                }
+                user = users[newId];
+                res.cookie('user_id', user.id);
+                res.redirect('/urls');
+            })
+            .catch(err => console.error(err.message));
+
+        // users[newId] = {
+        //     id: newId, 
+        //     email: email,
+        //     password: hashPassword
+        // }
+
+        // user = users[newId];
+        // res.cookie('user_id', user.id);
+        // res.redirect('/urls');
+
     } else {
         console.log("User Already Exists or empty email or password.");
         res.status(400).send('Bad Request - Email used already has associated account');
@@ -273,7 +309,16 @@ app.post('/register', (req, res) => {
 
 app.post('/login', (req, res) => {
     let user = emailLookup(req.body.email);
-    if (user && user.password === req.body.password) {
+    let passwordCheck = false;
+    bcrypt
+        .compare(req.body.password, user.password)
+        .then(res => {
+            console.log(res);
+            passwordCheck = res;
+        })
+        .catch(err => console.error(err.message));
+
+    if (user && passwordCheck) {
         res.cookie('user_id', user.id)
         res.redirect('/urls');
     } else if (user){
