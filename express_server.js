@@ -27,7 +27,6 @@ app.use(cookieParser());
 app.use(cookieSession({
     name: 'session',
     keys: ["happy-times-at-lighthouse-labs"]
-    //maxAge: 10 * 60 * 1000 // 10 min
   }));
 
 
@@ -137,6 +136,16 @@ app.get('/users.json', (req, res) => {
 
 
 // --- GET REQUESTS - URL Creation, Summary and Edits ---
+
+app.get('/', (req, res) => {
+    let user = idLookup(req.session.user_id);
+    if (user) {
+        res.redirect('/url');
+    } else {
+        res.redirect('/login');
+    }
+});
+
 
 app.get('/urls', (req, res) => {
     let user = idLookup(req.session.user_id);
