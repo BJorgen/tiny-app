@@ -10,7 +10,6 @@
 //=======================================================
 const express = require('express');
 const bodyParser = require('body-parser');
-const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 
@@ -20,9 +19,12 @@ const saltRounds = 12;
 const app = express();
 const PORT = 8080;
 
+// --- Turned off mogan as it is only needed for development ---
+// const morgan = require('morgan');
+// app.use(morgan('dev'));
+
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(morgan('dev'));
 app.use(cookieParser());
 app.use(cookieSession({
     name: 'session',
@@ -77,7 +79,7 @@ function generateRandomString() {
 }
 
 // --- Function to return user object { id: id, email: email, password: password} from email ---
-function emailLookup(email){
+function emailLookup(email) {
     for (let userKey in users) {
         if (email === users[userKey].email) {
             return users[userKey];
@@ -86,7 +88,7 @@ function emailLookup(email){
 }
 
 // --- Function to return user object { id: id, email: email, password: password} from user_id ---
-function idLookup(user_id){
+function idLookup(user_id) {
     for (let user in users) {
         if (users[user].id === user_id) {
             return users[user];
