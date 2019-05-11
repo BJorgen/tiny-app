@@ -4,6 +4,8 @@
 
 This is an app build with Node and Express to allow users to shorten urls.
 
+![Screen Shot of App](docs/app-screenshot.png)
+
 ## Getting Started
 
 Install all dependencies using `npm install`
