@@ -29,7 +29,6 @@ app.use(cookieSession({
     keys: ["happy-times-at-lighthouse-labs"]
   }));
 
-
 //=======================================================
 //                  DATABASES
 //=======================================================
@@ -117,13 +116,15 @@ function httpCheck(longURL) {
         return longURL;
     } else {
         return webPrefix[0] + longURL;
-    }
-    
+    }  
 }
 
 //=======================================================
 //                  GET REQUESTS
 //=======================================================
+
+// --- These get handers are only available for testing and development purposes ---
+// --- They should be changed to only allow administrative access to view databases ---
 
 app.get('/urls.json', (req, res) => {
     res.json(urlDatabase);
@@ -132,7 +133,6 @@ app.get('/urls.json', (req, res) => {
 app.get('/users.json', (req, res) => {
     res.json(users);
 });
-
 
 
 // --- GET REQUESTS - URL Creation, Summary and Edits ---
@@ -186,10 +186,10 @@ app.get('/urls/:shortURL', (req, res) => {
         };
             res.render('urls_show', templateVars);
         } else {
-            res.redirect('/urls');
+            res.status(400).send('This tiny URL does not belong to you. <a href="/urls">Return to TinyApp</a>');
         };
     } else {
-        res.redirect('/login');
+        res.redirect('/urls');
     }
 });
 
@@ -203,7 +203,7 @@ app.get("/u/:shortURL", (req, res) => {
         let redirectURL = urlDatabase[shortURL].longURL;
         res.redirect(redirectURL);
     } else {
-        res.redirect('/urls');
+        res.status(400).send('Short URL does not exist. To create one go to <a href="/urls">TinyApp</a> website.');
     }
 });
 
@@ -242,7 +242,7 @@ app.post('/urls', (req, res) => {
         urlDatabase[shortURL] = { longURL : longURL, userID: user.id },
         res.redirect('/urls/'+ shortURL); 
     } else {
-        res.status(400).redirect('/login');
+        res.status(400).send('You are not logged in and cannot create a short URL. Visit the <a href="/urls">TinyApp</a> website.');
     }
 });
 
@@ -250,12 +250,17 @@ app.post('/urls', (req, res) => {
 app.post('/urls/:shortURL', (req, res) => {
     let user = idLookup(req.session.user_id);   
     if (user) {
+        const userUrls = urlsForUser(user.id);
         let shortURL = req.params.shortURL;
-        let longURL = httpCheck(req.body.longURL);
-        urlDatabase[shortURL].longURL = longURL;
-        res.redirect('/urls')
+        if (userUrls[shortURL]) {
+            let longURL = httpCheck(req.body.longURL);
+            urlDatabase[shortURL].longURL = longURL;
+            res.redirect('/urls')
+        } else {
+            res.status(400).send('This URL does not belong to you! <a href="/urls">Return to TinyApp</a>');
+        }
     }else {
-        res.status(400).redirect('/login');
+        res.status(400).send('You are not logged in. Visit the <a href="/urls">TinyApp</a> website.');
     }
 });
 
@@ -305,9 +310,9 @@ app.post('/login', (req, res) => {
         req.session.user_id = user.id;
         res.redirect('/urls');
     } else if (user){
-        res.status(404).send('Incorrect Password! <a href="/urls">Return to TinyApp</a>');
+        res.status(400).send('Incorrect Password! <a href="/urls">Return to TinyApp</a>');
     } else {
-        res.status(404).send('Login does not exist for this email! <a href="/urls">Return to TinyApp</a>');
+        res.status(400).send('Login does not exist for this email! <a href="/urls">Return to TinyApp</a>');
     }
 });
 

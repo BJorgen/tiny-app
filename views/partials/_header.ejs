@@ -1,32 +1,36 @@
 <head>
-    <div>
+    <div style ="height: 100px; text-align: right;">
+    <% if(user){ %>
+        <!-- If user is logged in, show logged in user & logout button-->
+        <div class="form-group mb-2">
+            <p>Logged in as: <b><%=user.email%></b> </p>
+        </div>
+
+        <form action="/logout" method="POST">
+        <div>
+            <button type="submit" name="logout-button" class="btn btn-danger" style="float:right">Logout</button>
+        </div>
+        </form>
+    <% } %>
+    </div>
+
+
+    <div style ="text-align: center; vertical-align: middle; line-height: 90px;">
         <h1>TinyApp</h1>
     </div>
 
     <% if(user){ %>
 
-        
-        <!-- If user is logged in, show logged in user & logout button-->
-        <!-- Also, for logged in users, have link to urls sumamry and create new url page -->
-        <div>
+        <!-- If user is logged in, have link to urls summary and create new url page -->
+        <div style ="text-align: center; vertical-align: middle; line-height: 40px;">
             <a href='/urls'> URLs</a> |
             <a href="/urls/new">Create New TinyURL</a>
         </div>
 
-        <div class="form-group mb-2">
-            <p>Logged in as: <b><%=user.email%></b> </p>
-        </div>
-
-        <form class="form-inline" action="/logout" method="POST">
-        <div class="form-group mb-2">
-            <button type="submit" name="logout-button" class="btn btn-danger">Logout</button>
-        </div>
-        </form>
-
-    <% } else{ %>
+    <% } else { %>
 
         <!-- If user is not logged in, show login link and registration links -->
-        <div>
+        <div style ="text-align: center; vertical-align: middle; line-height: 40px;">
             <a href='/login'> Login </a> |
             <a href='/register'> Register</a>
         </div>
